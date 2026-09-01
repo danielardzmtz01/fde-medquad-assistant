@@ -1,0 +1,36 @@
+# cicd/cloudbuild-cd-dev.yaml
+# Continuous Delivery Pipeline for Dev Environment
+
+steps:
+  # 1. Build and push container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-and-push-dev'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$SHORT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:latest'
+      - '-f'
+      - 'src/backend/Dockerfile'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant'
+
+  # 2. Terraform Init & Apply Dev Environment
+  - name: 'hashicorp/terraform:1.7'
+    id: 'terraform-apply-dev'
+    dir: 'terraform/environments/dev'
+    args:
+      - 'apply'
+      - '-auto-approve'
+      - '-var'
+      - 'container_image=us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

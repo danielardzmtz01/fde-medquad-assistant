@@ -1,0 +1,7 @@
+# terraform_static/terraform.tfvars.example
+
+parent_resource_id = "organizations/YOUR_ORG_ID" # o "folders/YOUR_PARENT_FOLDER_ID"
+root_folder_name   = "MedQuAD-Platform"
+billing_account_id = "012345-6789AB-CDEF01"
+admin_project_id   = "drm-medquad-admin-central"
+region             = "us-central1"

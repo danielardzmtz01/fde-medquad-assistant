@@ -1,0 +1,62 @@
+# cicd/cloudbuild-ci.yaml
+# Continuous Integration Pipeline: Linting, Unit Testing, Evals & Container Build
+
+steps:
+  # 1. Python Code Quality (Ruff Lint & Format Check)
+  - name: 'python:3.11-slim'
+    id: 'lint-python'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install ruff
+        ruff check src/ tests/
+        ruff format --check src/ tests/
+
+  # 2. Terraform Format & Validation Check
+  - name: 'hashicorp/terraform:1.7'
+    id: 'validate-terraform'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd terraform/environments/dev
+        terraform init -backend=false
+        terraform validate
+        cd ../../modules/cloud_run
+        terraform init -backend=false
+        terraform validate
+
+  # 3. Unit Testing & Code Coverage Check (>80%)
+  - name: 'python:3.11-slim'
+    id: 'pytest-coverage'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install -r src/backend/requirements.txt pytest pytest-cov pytest-asyncio
+        pytest tests/ -v --cov=src/backend/app --cov-report=term-missing --cov-fail-under=80
+
+  # 4. Deterministic Clinical Heuristic Evals (ROUGE-L >= 0.40, BLEU >= 0.35, Safe Refusal)
+  - name: 'python:3.11-slim'
+    id: 'clinical-evals'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        pip install -r src/backend/requirements.txt pytest rouge-score nltk
+        pytest tests/test_evals_heuristics.py -v
+
+  # 5. Build Container Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$SHORT_SHA'
+      - '-f'
+      - 'src/backend/Dockerfile'
+      - '.'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

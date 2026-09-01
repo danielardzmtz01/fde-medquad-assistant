@@ -1,0 +1,36 @@
+# cicd/cloudbuild-cd-staging.yaml
+# Continuous Delivery Pipeline for Staging Environment
+
+steps:
+  # 1. Build and push container image with staging tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-staging-image'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:staging-$SHORT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:staging'
+      - '-f'
+      - 'src/backend/Dockerfile'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-staging-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant'
+
+  # 2. Terraform Init & Apply Staging
+  - name: 'hashicorp/terraform:1.7'
+    id: 'terraform-apply-staging'
+    dir: 'terraform/environments/staging'
+    args:
+      - 'apply'
+      - '-auto-approve'
+      - '-var'
+      - 'container_image=us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:staging-$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

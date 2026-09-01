@@ -1,0 +1,35 @@
+name: Send To Next Environment
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  #push:
+  #  branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  non-production-deploy:
+    if: "!contains(github.repository, 'prd')" 
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        
+      # Runs a set of commands using the runners shell
+      - name: Deploy to ${{ vars.TARGET_ENV }}
+        run: |
+          echo Github Action to push to ${{ vars.TARGET_ENV }}
+          git clone https://${{ secrets.TOKEN_USER }}:x-oauth-basic@github.com/${{ vars.SOURCE_REPO_FN }}
+          cd ${{ vars.SOURCE_REPO_SN }}
+          git checkout main
+          git remote add target-repo https://${{ secrets.TOKEN_USER }}:x-oauth-basic@github.com/${{ vars.TARGET_REPO_FN }}
+          git push -u target-repo main --force

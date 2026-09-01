@@ -1,0 +1,77 @@
+# .github/workflows/terraform_services.yml
+name: "Terraform Services Workload"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform Action'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform-services:
+    name: 'Terraform Services Workload'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform_service_workload
+        shell: bash
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.SERVICE_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_CICD_SA }}
+
+      - name: Setup Terraform Backend
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "gcs" {
+              bucket = "${{ secrets.TF_STATE_BUCKET }}"
+              prefix = "terraform/state/dev/service_workload"
+            }
+          }
+          EOF
+
+      - name: Setup Terraform Variables
+        run: |
+          cat <<EOF > org_variables.auto.tfvars
+          service_project_id    = "${{ secrets.SERVICE_PROJECT_ID }}"
+          region                = "${{ vars.GCP_REGION || 'us-central1' }}"
+          environment           = "dev"
+          container_image       = "${{ vars.CONTAINER_IMAGE || 'us-central1-docker.pkg.dev/fde-medquad-admin-central/medquad-repo/medquad-assistant:latest' }}"
+          vpc_connector_id      = "projects/${{ secrets.ADMIN_PROJECT_ID }}/locations/${{ vars.GCP_REGION || 'us-central1' }}/connectors/medquad-conn-dev"
+          min_instances         = 0
+          max_instances         = 3
+          allow_unauthenticated = true
+          EOF
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: ${{ inputs.action == 'apply' }}
+        run: terraform apply -auto-approve

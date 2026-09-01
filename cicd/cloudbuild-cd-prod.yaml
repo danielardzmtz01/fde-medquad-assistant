@@ -1,0 +1,33 @@
+# cicd/cloudbuild-cd-prod.yaml
+# Continuous Delivery Pipeline for Production (Triggered on Release Tags with Approval)
+
+steps:
+  # 1. Build and tag release image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-prod-image'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$TAG_NAME'
+      - '-f'
+      - 'src/backend/Dockerfile'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-prod-image'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$TAG_NAME'
+
+  # 2. Terraform Plan & Apply Prod Environment
+  - name: 'hashicorp/terraform:1.7'
+    id: 'terraform-apply-prod'
+    dir: 'terraform/environments/prod'
+    args:
+      - 'apply'
+      - '-auto-approve'
+      - '-var'
+      - 'container_image=us-central1-docker.pkg.dev/$PROJECT_ID/medquad-repo/medquad-assistant:$TAG_NAME'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

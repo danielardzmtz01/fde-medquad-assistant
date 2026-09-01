@@ -1,0 +1,74 @@
+# .github/workflows/terraform_admin.yml
+name: "Terraform Admin Networking (QA)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform Action'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform-admin-qa:
+    name: 'Terraform Admin QA'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform_admin_networking
+        shell: bash
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.ADMIN_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_CICD_SA }}
+
+      - name: Setup Terraform Backend
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "gcs" {
+              bucket = "${{ secrets.TF_STATE_BUCKET }}"
+              prefix = "terraform/state/qa/admin_networking"
+            }
+          }
+          EOF
+
+      - name: Setup Terraform Variables
+        run: |
+          cat <<EOF > org_variables.auto.tfvars
+          admin_project_id = "${{ secrets.ADMIN_PROJECT_ID }}"
+          region           = "${{ vars.GCP_REGION || 'us-central1' }}"
+          environment      = "qa"
+          subnet_cidr      = "10.20.0.0/24"
+          connector_cidr   = "10.20.1.0/28"
+          EOF
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: ${{ inputs.action == 'apply' }}
+        run: terraform apply -auto-approve

@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDE Readiness Assessment - Daniela Rodriguez Martinez</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #06080e;
+            --panel-bg: rgba(13, 17, 28, 0.7);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --accent-blue: #2563eb;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --perfect-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.07) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.07) 0px, transparent 50%);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header block */
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+        }
+
+        .header-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .header-meta span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Top summary widgets */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .summary-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.8rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .summary-info h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-info .val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+
+        .status-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .status-badge.pass {
+            background-color: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .status-badge.fail {
+            background-color: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        /* Gates Section */
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.8rem;
+            border-left: 4px solid var(--accent-cyan);
+            padding-left: 0.8rem;
+        }
+
+        .gate-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .gate-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        .gate-header {
+            background: rgba(255, 255, 255, 0.015);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .gate-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.2rem;
+            }
+        }
+
+        .gate-title-group h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .gate-title-group p {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .gate-metrics {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .gate-metric-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            min-width: 90px;
+        }
+
+        .gate-metric-box.score-box {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .gate-metric-box .label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+
+        .gate-metric-box .num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .gate-metric-box .num.passed { color: var(--success); }
+        .gate-metric-box .num.failed { color: var(--danger); }
+
+        /* Sub-rubric list grid */
+        .gate-body {
+            padding: 2rem 2.5rem;
+        }
+
+        .sub-rubric-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .sub-rubric-row {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.2rem 1.8rem;
+            display: grid;
+            grid-template-columns: 2.2fr 1fr 5fr;
+            align-items: start;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .sub-rubric-row {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+        }
+
+        .sub-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .sub-score-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sub-score-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            padding: 0.25rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sub-score-badge.high { color: var(--success); }
+        .sub-score-badge.mid { color: var(--warning); }
+        .sub-score-badge.low { color: var(--danger); }
+
+        .sub-score-max {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .sub-rationale {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        /* Targeted Interview Questions Section */
+        .questions-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        .questions-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .questions-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .questions-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .question-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .question-num {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-right: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+        }
+
+        @media print {
+            body {
+                background: #000000 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .gate-card, .summary-card, .questions-card {
+                background: #0d111c !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                page-break-inside: avoid;
+            }
+            .sub-rubric-row {
+                background: rgba(255, 255, 255, 0.02) !important;
+                border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>FDE Readiness Assessment</h1>
+                <p>Technical competency and architecture evaluation for L4, L5, L6 levels</p>
+            </div>
+            <div class="header-meta">
+                Candidate: <span>Daniela Rodriguez Martinez</span><br>
+                Evaluation Date: <span>2026-08-31 21:43:45</span>
+            </div>
+        </header>
+
+        <!-- Summary widgets -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-info">
+                    <h3>Overall Result</h3>
+                    <div style="margin-top: 0.5rem">
+                        <span class="status-badge {OVERALL_STATUS_CLASS}">{OVERALL_STATUS}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-info">
+                    <h3>Overall Average</h3>
+                    <div class="val">{OVERALL_AVERAGE}</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-info">
+                    <h3>AI/ML Gate Average</h3>
+                    <div class="val" style="color: {AIML_COLOR}">2.8 <span style="font-size: 1rem; color: var(--text-secondary)">/ 3.00</span></div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-info">
+                    <h3>Scoping Gate Average</h3>
+                    <div class="val" style="color: {SCOPING_COLOR}">2.86 <span style="font-size: 1rem; color: var(--text-secondary)">/ 3.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Assessment Gates Detail</h2>
+        
+        <div class="gate-list">
+            <!-- 1. AI/ML Engineering -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>1. AI/ML Engineering</h2>
+                        <p>Agentic design patterns, multi-agent frameworks, RAG systems, model routing and LLMOps</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {AIML_PASS_CLASS}">2.8</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">2.00</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">2.00</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">2.20</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Agentic & Multi-Agent Systems</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Demonstrated a robust multi-agent supervisor-worker architecture using Google Agent Development Kit (ADK) with separated Coordinator, Clinical Researcher, and Reviewer subagents with structured ReAct execution loops.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Retrieval & Data Engineering (RAG)</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Implemented Vertex AI Search (GEAP) with semantic vector search (text-embedding-004), 500-token semantic chunking with 10% overlap, relevance thresholding (>=0.80), and strict citation mapping.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Model Selection & Optimization</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge mid">2</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Applied tiered model selection strategy (Gemini 2.5 Pro for deep clinical reasoning and Gemini 2.5 Flash for high-throughput routing and review verification), though fine-tuning or distillation was not implemented.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">LLMOps and Evaluation</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Incorporated comprehensive evaluation suites combining statistical metrics (ROUGE-L, BLEU, Entity F1), LLM-as-a-judge (faithfulness/helpfulness), and prompt caching with BigQuery token streaming.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Domain-Applied AI/ML Expertise</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Tailored specifically for biomedical literature (NIH MedQuAD) with clinical guardrails, deterministic non-diagnostic refusal, and strict medical citation fidelity.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Scoping & Documentation -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>2. Scoping & Documentation</h2>
+                        <p>Problem translation, technical constraint definition, alignments, system design artifacts and ADRs</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {SCOPING_PASS_CLASS}">2.86</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.80</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">2.20</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">2.40</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Problem Definition</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Problem statement, clinical pain points, and north star metrics (recall >=90%, precision >=88%, p95 latency <=2.5s) are clearly articulated and bounded.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Technical Scope & Constraints</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Clear definition of goals and non-goals (e.g., explicit exclusion of EHR replacement and diagnostic device status) with regulatory boundary enforcement.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Stakeholder Alignment & Success Criteria</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Stakeholder pain points, consulting slide deck, and executive defense guide address CISO, CMO, CFO, and clinical director concerns directly.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">System Design Artifacts</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Delivered comprehensive High-Level Architecture diagrams, sequence flows, data pipelines, and detailed Technical Design Documents.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Decision Records</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Multiple structured Architecture Decision Records (ADRs 0001 through 0005) documenting context, decisions, alternatives considered, and trade-offs.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">API Documentation</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge mid">2</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Provided OpenAPI / Pydantic schemas and test contracts for endpoints (/healthz, /api/v1/chat, /api/v1/eval), though a standalone interactive Swagger specification file was omitted.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Operational Documentation</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Included structured deployment runbooks, troubleshooting matrices, distributed tracing instructions, and remediation procedures.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Security, Privacy, & Compliance -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>3. Security, Privacy, & Compliance</h2>
+                        <p>Auth policies, IAM boundaries, network isolation, PII handling and LLM-specific boundary guardrails</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {SECURITY_PASS_CLASS}">3.0</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.00</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">1.20</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">1.40</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Authentication & Authorization</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Implemented Identity-Aware Proxy (IAP) with SSO Cloud Identity groups, JWT assertion validation, and Cloud Run invoker IAM bindings.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Infrastructure & Network Security</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Engineered enterprise Hub-and-Spoke Shared VPC networking across multi-project environments with Serverless VPC Access Connectors and Network Connectivity Center (NCC) transit hubs.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Data Protection & Privacy</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Enforced TLS 1.3 in transit, CMEK and Google-managed encryption at rest, private Google access, and Secret Manager injection for sensitive credentials.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">AI-Specific Security</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Integrated GCP Model Armor for prompt injection defense and PII redaction alongside custom sub-millisecond Scope Lock safe refusal for diagnostic requests.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Compliance & Governance</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Complies with Domain Restricted Sharing (DRS) organization policies (constraints/iam.allowedPolicyMemberDomains), least-privilege custom SAs, and immutable audit logs.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Reliability & Resilience -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>4. Reliability & Resilience</h2>
+                        <p>Availability patterns, distributed logging, failure testing, graceful degradation and self-healing</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {RELIABILITY_PASS_CLASS}">2.5</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.30</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">1.50</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">1.75</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Availability Design</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Serverless Cloud Run autoscaling with health/liveness probes, multi-instance VPC connectors, and global HTTPS Load Balancer with managed SSL.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Observability</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Full OpenTelemetry distributed tracing integrated with Google Cloud Trace, structured JSON logging with trace-correlation, and BigQuery telemetry sinks.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Failure & Recovery Testing</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge mid">2</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Test suite covers injection, safe refusal, and agent validation error flows; however, formal chaos engineering or automated failover testing is minimal.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Graceful Degradation</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge mid">2</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Documented fallback caching strategies for search endpoint outages and defensive retries with backoff, with foundational implementation in code.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Performance & Cost Optimization -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>5. Performance & Cost Optimization</h2>
+                        <p>Scalable processing, autoscaling logic, resource efficiency and model routing cost management</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {PERFORMANCE_PASS_CLASS}">3.0</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.00</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">1.30</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">1.67</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Scalability & Elasticity</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Managed serverless container scaling, multi-environment concurrency tuning, and scalable Vertex AI Search managed datastores.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Resource Efficiency</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Prompt context caching saving up to 75% on tokens, sub-millisecond safe refusal without model calls, and asynchronous FastAPI request execution.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">AI Cost Management</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Detailed FinOps formulation streaming real-time input/output/cached token costs into partitioned BigQuery tables with Looker Studio visualization.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Operational Excellence -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>6. Operational Excellence</h2>
+                        <p>Automated pre-commit hooks, CI/CD pipelines, IaC modularity and quality engineering</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {OPERATIONAL_PASS_CLASS}">{OPERATIONAL_AVG}</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.30</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">1.50</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">1.75</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        {OPERATIONAL_ROWS}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Designing for Change -->
+            <div class="gate-card">
+                <div class="gate-header">
+                    <div class="gate-title-group">
+                        <h2>7. Designing for Change</h2>
+                        <p>Modular abstraction, configurations, API contracts and plugin extensibility patterns</p>
+                    </div>
+                    <div class="gate-metrics">
+                        <div class="gate-metric-box score-box">
+                            <div class="label">Score</div>
+                            <div class="num {CHANGE_PASS_CLASS}">3.0</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L4 Target</div>
+                            <div class="num">1.30</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L5 Target</div>
+                            <div class="num">1.50</div>
+                        </div>
+                        <div class="gate-metric-box">
+                            <div class="label">L6 Target</div>
+                            <div class="num">1.75</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gate-body">
+                    <div class="sub-rubric-grid">
+                        
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Modularity & Abstraction</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Clean separation of frontend, backend, data pipeline, ADK agents, safety layers, and reusable Terraform infrastructure modules.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Configuration Management</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Dynamic Terraform variable injection, environment variables per Cloud Run service, and Secret Manager parameterization.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">API Design & Versioning</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Standardized RESTful JSON endpoints (/api/v1/chat, /healthz, /api/v1/eval) with explicit Pydantic request/response schemas and trace header propagation.</div>
+                </div>
+                
+                <div class="sub-rubric-row">
+                    <div class="sub-name">Extensibility</div>
+                    <div class="sub-score-container">
+                        <span class="sub-score-badge high">3</span>
+                        <span class="sub-score-max">/ 3</span>
+                    </div>
+                    <div class="sub-rationale">Decoupled Model Context Protocol (MCP) server integration allowing seamless addition of new clinical tools, databases, or alternative LLM backends.</div>
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Targeted Interview Questions -->
+        <div class="questions-card">
+            <div class="questions-header">
+                <h2>Targeted Panel Interview Questions</h2>
+                <p>Scenario-based, code-level probing questions tailored to the candidate's portfolio evidence and technical gaps</p>
+            </div>
+            <div class="questions-list">
+                {INTERVIEW_QUESTIONS_BLOCK}
+            </div>
+        </div>
+
+        <footer>
+            Automatically compiled by FDE L4 Readiness Evaluator - {DATE_TIME}
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Questionnaire - Daniela Rodriguez Martinez</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent: #2563eb;
+            --border: #e5e7eb;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            padding: 3rem 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .meta {
+            text-align: right;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .meta span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .instruction {
+            background-color: #f3f4f6;
+            border-left: 4px solid #9ca3af;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .question-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.8rem;
+            page-break-inside: avoid;
+        }
+
+        .question-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .question-num {
+            color: var(--accent);
+        }
+
+        .question-body {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .notes-space {
+            border-top: 1px dashed var(--border);
+            padding-top: 1rem;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            height: 100px;
+        }
+
+        @media print {
+            body {
+                padding: 1rem;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .question-card {
+                border-color: #d1d5db;
+            }
+            .notes-space {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Panel Interview Questionnaire</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.2rem">Target: FDE L4 Readiness Assessment</p>
+            </div>
+            <div class="meta">
+                Candidate: <span>Daniela Rodriguez Martinez</span><br>
+                Date: <span>2026-08-31 21:43:45</span>
+            </div>
+        </header>
+
+        <div class="instruction">
+            <strong>Panel Instructions:</strong> These scenario-based technical questions are generated from the candidate's portfolio dossier. Use them to probe code-level implementations, design constraints, and technical trade-offs during the interview.
+        </div>
+
+        <div class="question-list">
+            
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 1</span>
+                    </div>
+                    <div class="question-body">
+                        In your multi-environment Terraform architecture, you use dynamic GCS backend injection in GitHub Actions. How do you prevent race conditions or state locking conflicts if multiple promotion workflows run concurrently across the staging and production repositories?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 2</span>
+                    </div>
+                    <div class="question-body">
+                        Your Scope Lock safe refusal engine claims a 0.07 ms latency with $0.00 token cost using regex and heuristics. How do you mitigate false positives for complex informational queries that use first-person clinical phrasing (e.g., 'My patient has swollen lymph nodes; what are the differential diagnoses in NIH literature?')?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 3</span>
+                    </div>
+                    <div class="question-body">
+                        In ADR 0001, you introduced the ReviewerAgent to validate factual claims against retrieved context chunks using Gemini 2.5 Flash. What specific prompt schema and grounding metric does the ReviewerAgent use to detect subtle medical hallucinations without introducing excessive review latency?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 4</span>
+                    </div>
+                    <div class="question-body">
+                        Your network topology implements a Shared VPC in an Admin Host project connected to a Central NCC Hub, with Cloud Run accessing it via a Serverless VPC Access Connector. What throughput bottlenecks or subnet sizing constraints (/28 connector CIDR) did you evaluate for high-concurrency production traffic?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 5</span>
+                    </div>
+                    <div class="question-body">
+                        Your CI/CD evaluation gate enforces ROUGE-L >= 0.40, BLEU >= 0.35, and Entity F1 >= 0.75 on a 150-question golden dataset. Why did you select token-level statistical overlap over model-based evaluation for automated blocking gates, and how do you handle valid semantic paraphrasing that fails n-gram precision?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 6</span>
+                    </div>
+                    <div class="question-body">
+                        How does the platform handle token context window limits and cost spikes when Vertex AI Search returns multiple dense NIH literature chunks containing tens of thousands of tokens?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 7</span>
+                    </div>
+                    <div class="question-body">
+                        In your load balancing and ingress configuration, you configure Identity-Aware Proxy (IAP) with a Serverless NEG. How does your FastAPI backend cryptographically verify the incoming `X-Goog-IAP-JWT-Assertion` header to prevent internal request spoofing?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 8</span>
+                    </div>
+                    <div class="question-body">
+                        Your BigQuery FinOps schema partitions by day and clusters by `agent_name` and `status`. If telemetry writes fail due to transient BigQuery quota limits or network blips, how does the application ensure that telemetry loss does not impact user-facing query latency or result in unrecorded billing data?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 9</span>
+                    </div>
+                    <div class="question-body">
+                        In your second project artifact (`agent_reviewer`), you implemented an SQLite session database using `aiosqlite` with `EventsCompactionConfig`. What architectural trade-offs led you to SQLite over Cloud SQL PostgreSQL or Firestore for persistent session storage in serverless deployments?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-num">Question 10</span>
+                    </div>
+                    <div class="question-body">
+                        If a clinician asks a query requiring comparative analysis across multiple disparate NIH sub-specialty databases (e.g., combining NIDDK diabetes protocols with Cancer.gov oncology markers), how does the ADK Root Orchestrator decompose and execute parallel queries across Vertex AI Search engines without exceeding Cloud Run request timeouts?
+                    </div>
+                    <div class="notes-space">
+                        Notes / Observations:
+                    </div>
+                </div>
+                
+        </div>
+    </div>
+</body>
+</html>

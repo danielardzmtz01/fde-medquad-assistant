@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Evaluación de Agentes ADK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #090b11;
+            --panel-bg: rgba(18, 22, 33, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Overview Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .score-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .score-circle {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle circle {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+        }
+
+        .score-circle .bg {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .score-circle .bar {
+            stroke: url(#scoreGradient);
+            stroke-dasharray: 502;
+            stroke-dashoffset: calc(502 - (502 * 100) / 100);
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Outfit', sans-serif;
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Checks list */
+        .checks-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .check-item:last-child {
+            border-bottom: none;
+        }
+
+        .check-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .check-icon.passed {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .check-icon.failed {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .check-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .check-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.1rem;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .status-badge.passed {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Rubrics Section */
+        .rubrics-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .rubric-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .rubric-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .rubric-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .rubric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .rubric-info h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .rubric-score {
+            display: flex;
+            align-items: baseline;
+            gap: 0.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1.2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .score-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .score-val.perfect { color: var(--success); }
+        .score-val.good { color: var(--warning); }
+        .score-val.bad { color: var(--danger); }
+
+        .score-max {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .rubric-body {
+            padding: 2rem;
+        }
+
+        .rubric-reason-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+
+        .rubric-reason {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        @media print {
+            body {
+                background: #000000 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .card, .rubric-card {
+                background: #0d111c !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reporte de Evaluación de Agentes</h1>
+            <p class="subtitle">Análisis automatizado estático, dinámico y rúbrica inteligente LLM</p>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard-grid">
+            <!-- Score -->
+            <div class="card score-card">
+                <div class="score-circle">
+                    <svg>
+                        <defs>
+                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#3b82f6" />
+                                <stop offset="100%" stop-color="#8b5cf6" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="bg" cx="90" cy="90" r="80"></circle>
+                        <circle class="bar" cx="90" cy="90" r="80"></circle>
+                    </svg>
+                    <div class="score-text">
+                        <span class="score-number">100</span>
+                        <span class="score-total">/100</span>
+                    </div>
+                </div>
+                <div class="score-label" style="color: #10b981">Sobresaliente (A)</div>
+            </div>
+
+            <!-- Checks -->
+            <div class="card checks-card">
+                <h3>Verificación Estática y Conformidad</h3>
+                
+                <div class="check-item">
+                    <div class="check-info">
+                        <div class="check-icon passed">✓</div>
+                        <div>
+                            <div class="check-title">Escaneo de Secretos y API Keys</div>
+                            <div class="check-desc">Verifica que no existan credenciales expuestas en el código.</div>
+                        </div>
+                    </div>
+                    <span class="status-badge passed">Aprobado</span>
+                </div>
+
+                <div class="check-item">
+                    <div class="check-info">
+                        <div class="check-icon passed">✓</div>
+                        <div>
+                            <div class="check-title">Infraestructura Declarativa (Terraform)</div>
+                            <div class="check-desc">Confirma la presencia de archivos main.tf y variables.tf.</div>
+                        </div>
+                    </div>
+                    <span class="status-badge passed">Aprobado</span>
+                </div>
+
+                <div class="check-item">
+                    <div class="check-info">
+                        <div class="check-icon passed">✓</div>
+                        <div>
+                            <div class="check-title">Persistencia de Base de Datos (SQLite)</div>
+                            <div class="check-desc">Verifica que se use SqliteSessionService en lugar de memoria.</div>
+                        </div>
+                    </div>
+                    <span class="status-badge passed">Aprobado</span>
+                </div>
+
+                <div class="check-item">
+                    <div class="check-info">
+                        <div class="check-icon passed">✓</div>
+                        <div>
+                            <div class="check-title">Compactación de Conversaciones</div>
+                            <div class="check-desc">Confirma que EventsCompactionConfig esté declarado.</div>
+                        </div>
+                    </div>
+                    <span class="status-badge passed">Aprobado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rubrics -->
+        <h2 class="rubrics-title">Detalles por Rúbrica Evaluada</h2>
+        
+        <div class="rubric-grid">
+            <!-- 1. Tool Design -->
+            <div class="rubric-card">
+                <div class="rubric-header">
+                    <div class="rubric-info">
+                        <h4>1. Tool & Interface Design</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary)">Pydantic schemas, Docstrings, Custom Error recovery</p>
+                    </div>
+                    <div class="rubric-score">
+                        <span class="score-val perfect">20</span>
+                        <span class="score-max">/20</span>
+                    </div>
+                </div>
+                <div class="rubric-body">
+                    <div class="rubric-reason-title">Retroalimentación del Evaluador</div>
+                    <p class="rubric-reason">All tools utilize explicit Pydantic input schemas (FetchLocalFileContentInput, ProposeCodeModificationInput, RunLocalPytestInput, RunPythonSyntaxCheckInput), clear task-specific naming, and provide descriptive, guided recovery instructions in tool docstrings and runtime error responses.</p>
+                </div>
+            </div>
+
+            <!-- 2. Context & Memory -->
+            <div class="rubric-card">
+                <div class="rubric-header">
+                    <div class="rubric-info">
+                        <h4>2. Context, Memory & Session State</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary)">Persistent Sessions, Async run, History compaction</p>
+                    </div>
+                    <div class="rubric-score">
+                        <span class="score-val perfect">20</span>
+                        <span class="score-max">/20</span>
+                    </div>
+                </div>
+                <div class="rubric-body">
+                    <div class="rubric-reason-title">Retroalimentación del Evaluador</div>
+                    <p class="rubric-reason">Implements persistent session management via SqliteSessionService, asynchronous runner execution (runner.run_async), and event history compaction using EventsCompactionConfig with an LlmEventSummarizer.</p>
+                </div>
+            </div>
+
+            <!-- 3. Orchestration & Logic -->
+            <div class="rubric-card">
+                <div class="rubric-header">
+                    <div class="rubric-info">
+                        <h4>3. Orchestration & Logic</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary)">Coordinator Pattern, Model routing, Guardrails, Human-in-the-Loop</p>
+                    </div>
+                    <div class="rubric-score">
+                        <span class="score-val perfect">20</span>
+                        <span class="score-max">/20</span>
+                    </div>
+                </div>
+                <div class="rubric-body">
+                    <div class="rubric-reason-title">Retroalimentación del Evaluador</div>
+                    <p class="rubric-reason">Employs hierarchical multi-agent coordination with AgentTools, strategic model routing (Gemini Pro for coordinator, Gemini Flash for sub-agents), pre-execution secret interception callbacks, and Human-in-the-Loop approval enforcement (require_confirmation=True).</p>
+                </div>
+            </div>
+
+            <!-- 4. Observability & Tracing -->
+            <div class="rubric-card">
+                <div class="rubric-header">
+                    <div class="rubric-info">
+                        <h4>4. Observability & Tracing</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary)">JSON logs, OpenTelemetry traces, Scrubbing PII, Intent vs Outcome</p>
+                    </div>
+                    <div class="rubric-score">
+                        <span class="score-val perfect">20</span>
+                        <span class="score-max">/20</span>
+                    </div>
+                </div>
+                <div class="rubric-body">
+                    <div class="rubric-reason-title">Retroalimentación del Evaluador</div>
+                    <p class="rubric-reason">Features OpenTelemetry distributed tracing across agent and tool spans, structured JSON logging with custom JSONFormatter, PII/credential scrubbing filters, and explicit Intent vs Outcome before/after model and tool callbacks.</p>
+                </div>
+            </div>
+
+            <!-- 5. Infrastructure & CI/CD -->
+            <div class="rubric-card">
+                <div class="rubric-header">
+                    <div class="rubric-info">
+                        <h4>5. Infrastructure & CI/CD</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary)">Automated Eval suite, Terraform IaC, Secret Manager integration</p>
+                    </div>
+                    <div class="rubric-score">
+                        <span class="score-val perfect">20</span>
+                        <span class="score-max">/20</span>
+                    </div>
+                </div>
+                <div class="rubric-body">
+                    <div class="rubric-reason-title">Retroalimentación del Evaluador</div>
+                    <p class="rubric-reason">Provides a comprehensive automated golden dataset evaluation suite (run_eval_suite.py), complete declarative Terraform modules for Cloud Run, GCS, IAM, and Secret Manager, and secure API key injection via Secret Manager.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Generado automáticamente por el Evaluador Local de Agentes ADK - 2026-08-31 21:43:22
+        </footer>
+    </div>
+</body>
+</html>

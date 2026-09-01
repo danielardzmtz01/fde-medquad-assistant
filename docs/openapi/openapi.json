@@ -1,0 +1,106 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MedQuAD Clinical Assistant API",
+    "description": "Multi-agent clinical research platform grounded in NIH MedQuAD biomedical literature.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "description": "Probe endpoint for Cloud Run liveness and readiness checks.",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "HEALTHY" },
+                    "service": { "type": "string", "example": "medquad-clinical-assistant" },
+                    "environment": { "type": "string", "example": "dev" },
+                    "version": { "type": "string", "example": "1.0.0" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat": {
+      "post": {
+        "tags": ["Clinical Agents"],
+        "summary": "Clinical Chat Query",
+        "description": "Processes clinical query through ADK multi-agent pipeline with Model Armor and Scope Lock.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": { "type": "string", "example": "What are diagnostic markers of Stage II Hodgkin Lymphoma?" },
+                  "session_id": { "type": "string", "example": "sess-user-01" },
+                  "clinical_domain": { "type": "string", "example": "oncology" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Structured clinical answer with inline citations and telemetry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "answer": { "type": "string" },
+                    "citations": { "type": "array" },
+                    "guardrails": { "type": "object" },
+                    "tokens": { "type": "object" },
+                    "latency_ms": { "type": "number" },
+                    "trace_id": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/eval": {
+      "post": {
+        "tags": ["Quality & Evals"],
+        "summary": "Run Quality Evaluation Gate",
+        "description": "Calculates ROUGE-L, BLEU, and Entity F1 heuristics against golden test dataset.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["golden_query", "ground_truth_answer"],
+                "properties": {
+                  "golden_query": { "type": "string" },
+                  "ground_truth_answer": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluation results and gate status"
+          }
+        }
+      }
+    }
+  }
+}

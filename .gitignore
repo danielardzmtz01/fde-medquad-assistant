@@ -1,0 +1,61 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all variable files with actual secrets/values
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+.env
+.env.*
+!.env.example
+
+# Allow example tfvars files
+!*.tfvars.example
+!*.auto.tfvars.example
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+env/
+venv/
+ENV/
+
+# Node & Frontend
+node_modules/
+dist/
+build/
+
+# OS & Temp
+.DS_Store
+*.tmp
+*.bak
+scratch/
+
+# Preserve JSON specs while ignoring local credentials
+!package.json
+!tsconfig.json
+!docs/openapi/openapi.json
