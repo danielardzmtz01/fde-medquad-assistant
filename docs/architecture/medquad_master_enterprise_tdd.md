@@ -413,9 +413,9 @@ Every deployment executes automated evaluation gates against golden clinical dat
 * **Decision:** Standardize tool execution via MCP over Server-Sent Events.
 * **Rationale:** Decouples tool execution into micro-services and enables dynamic schema discovery.
 
-### ADR 007: SQLite Session Service with Compaction vs. In-Memory State
-* **Decision:** Implement `SqliteSessionService` with `EventsCompactionConfig`.
-* **Rationale:** Guarantees session recovery across Cloud Run container restarts and summarizes older turns to prevent token window overflow.
+### ADR 007: Tiered Session Persistence (In-Process SQLite for DEV / Cloud Firestore & BigQuery Archive for PRD)
+* **Decision:** Implement an abstract `SessionService` factory supporting in-process `SqliteSessionService` for low-latency scale-to-zero in DEV, while providing seamless swappability to `FirestoreSessionService` with automatic TTL retention and BigQuery `session_transcripts_archive` for long-term historical clinical audit compliance in PRD.
+* **Rationale:** Delivers sub-millisecond in-process latency and zero idle costs during development, while providing an enterprise path to production for multi-region cross-device session resumption and 7-year HIPAA compliance without modifying agent logic.
 
 ### ADR 008: Customer-Managed Encryption Keys (CMEK) on Cloud KMS
 * **Decision:** Encrypt GCS buckets and BigQuery datasets with Cloud KMS keys.

@@ -19,6 +19,7 @@ from app.models.api_schemas import (
     EvaluationResponse,
 )
 from app.agents.orchestrator import root_orchestrator
+from app.agents.session import session_service
 from app.tools.search_tool import search_tool
 
 
@@ -152,6 +153,59 @@ async def run_evaluation(request: EvaluationRequest):
         citation_fidelity_score=1.0 if len(chat_res.citations) > 0 else 0.0,
         passed_gates=passed,
     )
+
+
+@app.get("/api/v1/sessions", tags=["Session History (v2)"])
+async def list_sessions(limit: int = 20):
+    """Retrieves a historical list of recent clinical research sessions."""
+    sessions = await session_service.list_recent_sessions(limit=limit)
+    return {
+        "storage_backend": getattr(settings, "session_storage_type", "sqlite"),
+        "total_sessions": len(sessions),
+        "sessions": sessions,
+    }
+
+
+@app.get("/api/v1/sessions/{session_id}", tags=["Session History (v2)"])
+async def get_session(session_id: str):
+    """Retrieves full conversational state, citations, and transcript for a past session."""
+    session = await session_service.get_session_transcript(session_id)
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Session {session_id} not found")
+    return session
+
+
+@app.post("/api/v1/sessions/{session_id}/archive", tags=["Session History (v2)"])
+async def archive_session(session_id: str, req: Request):
+    """Archives a completed session into BigQuery for long-term clinical audit compliance."""
+    session = await session_service.get_session_transcript(session_id)
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Session {session_id} not found")
+
+    user_email = req.headers.get("X-Goog-Authenticated-User-Email", "clinical-researcher@hospital.org")
+    state = session.get("state", {})
+    prompt_tokens = state.get("prompt_tokens", 0)
+    completion_tokens = state.get("completion_tokens", 0)
+    cached_tokens = state.get("cached_tokens", 0)
+
+    # Cost calculation
+    cost = (prompt_tokens * 1.25e-6) + (completion_tokens * 5.0e-6) + (cached_tokens * 0.3125e-6)
+
+    await bq_logger.log_session_archive(
+        session_id=session_id,
+        user_email=user_email,
+        transcript_data=session,
+        total_tokens=prompt_tokens + completion_tokens,
+        estimated_cost_usd=cost,
+        history_summary=session.get("history_summary", ""),
+    )
+
+    return {
+        "status": "ARCHIVED",
+        "session_id": session_id,
+        "destination": f"{settings.project_id}.{settings.bq_dataset_id}.session_transcripts_archive",
+        "retention": f"{getattr(settings, 'session_retention_days', 90)} days",
+    }
 
 
 if __name__ == "__main__":

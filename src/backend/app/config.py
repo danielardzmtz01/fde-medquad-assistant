@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     otel_service_name: str = "medquad-clinical-assistant"
     log_level: str = "INFO"
 
+    # Session Persistence & History (v2)
+    session_storage_type: str = "sqlite"  # Options: "sqlite", "firestore"
+    sqlite_db_path: str = "sqlite:///tmp/medquad_sessions.db"
+    firestore_collection: str = "clinical_sessions"
+    session_retention_days: int = 90
+
     # Server Settings
     port: int = 8080
     host: str = "0.0.0.0"
