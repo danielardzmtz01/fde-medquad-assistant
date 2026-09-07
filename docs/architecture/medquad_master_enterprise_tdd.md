@@ -428,3 +428,50 @@ Every deployment executes automated evaluation gates against golden clinical dat
 ### ADR 010: OpenTelemetry + BigQuery Partitioned Sink vs. Cloud Logging Only
 * **Decision:** Stream granular token usage and trace spans to BigQuery.
 * **Rationale:** Enables sub-second distributed tracing across agents and real-time FinOps cost reporting in Looker Studio.
+
+---
+
+## 10. Production Roadmap & Future Work (v2 Evolution)
+
+### 10.1 Tiered Session Persistence & Historical Retrieval Architecture
+While the current DEV baseline utilizes an in-process `SqliteSessionService` for sub-millisecond execution and scale-to-zero FinOps elasticity, the production roadmap introduces **Tiered Multi-Backend Session Persistence** (implemented in branch `v2`).
+
+This enhancement decouples real-time conversation state management from long-term compliance archiving:
+
+```
+                                [ 👤 Clinician / Researcher ]
+                                              │
+                ┌─────────────────────────────┴─────────────────────────────┐
+                ▼ (Live Clinical Query)                                     ▼ (Historical Query / Audit)
+       POST /api/v1/chat                                           GET /api/v1/sessions
+                │                                                  GET /api/v1/sessions/{id}
+                ▼                                                           │
+    [ Root Orchestrator ]                                                   ▼
+                │                                               [ Historical Transcript View ]
+                ▼ (Abstract Factory: create_session_service)
+  ┌─────────────────────────────────────────────────────────────┐
+  │                     SessionService (v2)                     │
+  ├──────────────────────────────┬──────────────────────────────┤
+  │ 📁 SQLite Mode (DEV / Local) │ ☁️ Firestore Mode (PRD)      │
+  │ • In-process latency < 0.5ms │ • Serverless multi-region    │
+  │ • Scale-to-Zero ($0.00 idle) │ • Multi-device continuity    │
+  │ • Ephemeral /tmp storage     │ • Automated TTL (90-day retention)│
+  └──────────────────────────────┴──────────────────────────────┘
+                                 │
+                                 ▼ (Upon Session Completion or Explicit Request)
+                    POST /api/v1/sessions/{id}/archive
+                                 │
+                                 ▼ (Immutable Regulatory Sink)
+                 [ 📊 BigQuery: session_transcripts_archive ]
+```
+
+### 10.2 Architectural Comparison: Current Baseline vs. Production Roadmap (v2)
+
+| Dimension | Current Baseline (DEV) | Future Work / Production Roadmap (v2) | Business & Engineering Benefit |
+| :--- | :--- | :--- | :--- |
+| **Session Backend** | In-process `SqliteSessionService` (`/tmp/medquad_sessions.db`). | Serverless `FirestoreSessionService` with multi-region replication. | Cross-pod session synchronization; clinicians can resume research from any clinic workstation. |
+| **Historical Visibility** | Ephemeral to container instance. | Persistent REST endpoints (`GET /api/v1/sessions`, `GET /api/v1/sessions/{id}`). | Full audit visibility into historical queries and citations generated months prior. |
+| **Data Retention & Lifecycle** | Container teardown / volatile. | Automated Firestore Document TTL (`expires_at` timestamp). | Compliance with healthcare data retention policies (e.g., automated 90-day purge). |
+| **Compliance Archiving** | Per-turn token usage telemetry in BigQuery. | Complete structured JSON transcript stream in `session_transcripts_archive`. | 7-year audit-proof immutable storage for clinical trial and HIPAA compliance. |
+| **Episodic Memory** | History compaction within current session. | Semantic vector search over historical session summaries (`text-embedding-004`). | Contextual recall across research sessions separated by weeks or months. |
+
