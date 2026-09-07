@@ -16,7 +16,7 @@ resource "google_compute_region_network_endpoint_group" "medquad_serverless_neg"
   project               = module.project_admin.project_id
 
   cloud_run {
-    service = google_cloud_run_v2_service.medquad_service.name
+    service = google_cloud_run_v2_service.medquad_backend.name
   }
 }
 
